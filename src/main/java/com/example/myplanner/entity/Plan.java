@@ -1,29 +1,36 @@
 package com.example.myplanner.entity;
 
 
+import com.example.myplanner.dto.PlanRequestDto;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 public class Plan {
     private Long id;
-    private Long userId;
-    private LocalDate createAt;
-    private LocalDate updateAt;
+    private String name;
+    private String password;
+    private LocalDateTime createAt;
+    private LocalDateTime updateAt;
     private String title;
-    private List<Task> tasks;
+    private String content;
 
-    public Plan(Long id, Long userId, String title){
+    public Plan(Long id, String name, String password, String title, String content){
         this.id = id;
-        this.userId = userId;
+        this.name = name;
+        this.password = password;
         this.title = title;
-        this.createAt = LocalDate.now();
-        this.updateAt = LocalDate.now();
-        tasks = new ArrayList<>();
+        this.createAt = LocalDateTime.now();
+        this.updateAt = LocalDateTime.now();
+        this.content = content;
+    }
+
+    public void update(PlanRequestDto dto) {
+        this.name = dto.getName();
+        this.content = dto.getContent();
+        this.updateAt = LocalDateTime.now();
     }
 }

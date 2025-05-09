@@ -2,12 +2,14 @@ package com.example.myplanner.dto;
 
 import lombok.Getter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 public class PlanRequestDto {
-    private Long userId;
-    private LocalDate createAt;
-    private LocalDate updateAt;
+    private String name;
+    private String password;
+    private LocalDateTime createAt;
+    private LocalDateTime updateAt;
     private String title;
+    private String content;
 }

@@ -20,7 +20,7 @@ public class PlanController {
         Long planId = planList.isEmpty() ? 1 : Collections.max(planList.keySet()) + 1;
 
         // 요청받은 데이터로 일정생성
-        Plan plan = new Plan(planId, dto.getUserId(), dto.getTitle());
+        Plan plan = new Plan(planId, dto.getName(), dto.getPassword(), dto.getTitle(), dto.getContent());
 
         // inmemory DB에 Plan 저장
         planList.put(planId, plan);
@@ -30,11 +30,13 @@ public class PlanController {
 
     //전체조회
     @GetMapping
-    public Map<Long, Plan> getPlanList(){
-        return planList;
+    public List<Plan> getPlanList(){
+        return planList.values().stream()
+                .sorted(Comparator.comparing(Plan::getUpdateAt).reversed())
+                .collect(Collectors.toList());
     }
 
-    // 아이디로 단건조회
+    // 일정아이디로 단건조회
     @GetMapping("/{id}")
     public PlanResponseDto findPlanById(@PathVariable Long id){
         Plan plan = planList.get(id);
@@ -47,12 +49,38 @@ public class PlanController {
     @GetMapping("/request-param")
     public List<Plan> findPlanByParam(
             @RequestParam(required = false) LocalDate updateAt,
-            @RequestParam(required = false) Long userId) {
+            @RequestParam(required = false) String name) {
 
         return planList.values().stream()
-                .filter(p -> (updateAt == null || p.getUpdateAt().equals(updateAt)) &&
-                        (userId == null || p.getUserId().equals(userId)))
+                .filter(p -> (updateAt == null || p.getUpdateAt().toLocalDate().equals(updateAt)) &&
+                        (name == null || p.getName().equals(name)))
                 .sorted(Comparator.comparing(Plan::getUpdateAt).reversed())
                 .collect(Collectors.toList());
     }
+
+    @PutMapping("/{id}")
+    public PlanResponseDto updatePlanById(
+            @PathVariable Long id,
+            @RequestBody PlanRequestDto dto
+    ) {
+        Plan plan = planList.get(id);
+
+        // 비밀번호가 동일할때만 수정
+        if(dto.getPassword().equals(plan.getPassword())) {
+            plan.update(dto);
+        }
+        return new PlanResponseDto(plan);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deletePlan(
+            @PathVariable Long id,
+            @RequestParam String password
+    ) {
+        Plan plan = planList.get(id);
+        if (plan != null && plan.getPassword().equals(password)) {
+            planList.remove(id);
+        }
+    }
+
 }
